@@ -1,5 +1,7 @@
 from colorama import init, Fore
 from context import Context
+import os
+from logger import Log
 
 class HomeLibrary:
     def __init__(self, path_to_connect : str):
@@ -29,28 +31,83 @@ class HomeLibrary:
         for i in book.keys():
             print(Fore.YELLOW + i, ' : ', Fore.WHITE + str(book[i]))
 
-    def add_book(self, book : dict[str, str]):
-        '''Adds book to library, takes book'''
+    def add_book(self):
+        name = input('enter book name => ')
+        author = input('enter book author => ')
+        publisher = input('enter book publisher => ')
+        genre = input('enter book genre => ')
+        year = input('enter book year => ')
+    
+        book = {
+            'name' : name,
+            'author' : author,
+            'publisher' : publisher,
+            'genre' : genre,
+            'year' : year
+        }
+    
+        os.system('cls')
+        print(Fore.WHITE + 'Your book:')
+        HomeLibrary.show_book(book)
+
         self.__context.insert_book(book)
 
-    def remove_book(self, id : int):
-        '''Removes book to library, takes book index'''
-        self.__context.remove_book(id)
-
-    def get_book_by_id(self, id : int):
-        '''Gets book by id, takes index of book, returns book'''
-        return self.__context.get_book_by_id(id)
+    def remove_book(self):
+        id = int(input('enter book id => '))
+        book = self.__context.get_book_by_id(id)
+    
+        if book != None:
+            HomeLibrary.show_book(book)
+            yes = input("Are you sure to delete this (yes) => ")
+            if yes == 'yes':
+                self.__context.remove_book(id)
+        else:
+            Log.info("The book with id = " + str(id) + " doesn't exist")
     
     def show_book_by_id(self, id : int):
         '''Prints book by id, takes index of book'''
-        HomeLibrary.show_book(self.get_book_by_id(id))
+        HomeLibrary.show_book(self.__context.get_book_by_id(id))
 
-    def find_books_by_parameter(self, parameter_name : str, parameter : str):
-        return self.__context.get_books_by_parameter(parameter_name, parameter)
+    def find_book_by_parameter(self):
+        parameter_name = input('enter parameter name => ')
+        parameter = input('enter parameter => ')
+    
+        Log.info("Find result : ")
+        book = self.__context.get_book_by_parameter(parameter_name, parameter)
+        HomeLibrary.show_book(book)
 
-    def find_book_by_parameter(self, parameter_name : str, parameter : str):
-        return self.__context.get_book_by_parameter(parameter_name, parameter)
+    def find_books_by_parameter(self):
+        parameter_name = input('enter parameter name => ')
+        parameter = input('enter parameter => ')
+    
+        Log.info("Find result : ")
+        books = self.__context.get_books_by_parameter(parameter_name, parameter)
+        HomeLibrary.show_books_from_list(books)
 
-    def find_books(self, parameters : dict[str, str]):
-        '''Finds books by parameters, takes parameters, returns list of books'''
-        return self.__context.get_books_by_parameters(parameters)
+    @staticmethod
+    def parameter_enter(enter):
+        try:
+            list = enter.split('=')
+            if len(list) != 2:
+                return None
+            if list[0].isspace() or list[1].isspace():
+                return None
+            return list
+        except:
+            return None
+
+    def find_books(self):
+        parameters : dict[str, str] = {}
+        enter = ''
+    
+        while enter != 'stop':
+            enter = input('enter parameter_name = parameter or stop => ')
+            if enter != 'stop':
+                result = HomeLibrary.parameter_enter(enter)
+                if result != None:
+                    parameters[result[0]] = result[1]
+    
+        os.system('cls')
+        HomeLibrary.show_book(parameters)
+        Log.info('For this parameters result : ')
+        HomeLibrary.show_books_from_list(self.__context.get_books_by_parameters(parameters))

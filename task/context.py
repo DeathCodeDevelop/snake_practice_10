@@ -1,6 +1,6 @@
 import sqlite3
 from books_initialize import books_initialize
-from logger import Log
+from console import Console
 
 class Context:
     def __init__(self, path_to_connect : str):
@@ -36,17 +36,17 @@ class Context:
         try:
             self.__cursor.execute('INSERT INTO books VALUES(NULL,?,?,?,?,?)', Context.get_data_from_book(book))
             self.__connection.commit()
-            Log.success("The book with name : " + book['name'] + " was added")
+            Console.success("The book with name : " + book['name'] + " was added")
         except:
-            Log.error("The book doesn't match the table in the database")
+            Console.error("The book doesn't match the table in the database")
 
     def insert_books(self, books : list[dict[str,str]]):
         try:
             self.__cursor.executemany('INSERT INTO books VALUES(NULL,?,?,?,?,?)', Context.get_data_from_books(books))
             self.__connection.commit()
-            Log.success("Books were added")
+            Console.success("Books were added")
         except:
-            Log.error("Books don't match the table in the database")
+            Console.error("Books don't match the table in the database")
 
     def get_all_books(self):
         self.__cursor.execute("SELECT * FROM books")
@@ -57,7 +57,7 @@ class Context:
             self.__cursor.execute("SELECT * FROM books WHERE " + parameter_name + " LIKE '%" + parameter + "%'")
             return Context.to_books_from_data(self.__cursor.fetchall())
         except:
-            Log.error("The book table doesn't have parameter with name " + parameter_name)
+            Console.error("The book table doesn't have parameter with name " + parameter_name)
             return None
 
     def get_book_by_parameter(self, parameter_name : str, parameter : str):
@@ -65,7 +65,7 @@ class Context:
             self.__cursor.execute("SELECT * FROM books WHERE " + parameter_name + " LIKE '%" + parameter + "%'")
             return Context.to_book_from_data(self.__cursor.fetchone())
         except:
-            Log.error("The book table doesn't have parameter with name " + parameter_name)
+            Console.error("The book table doesn't have parameter with name " + parameter_name)
             return None
 
     def get_books_by_parameters(self, parameters : dict[str, str]):
@@ -78,7 +78,7 @@ class Context:
             self.__cursor.execute(sql)
             return Context.to_books_from_data(self.__cursor.fetchall())
         except:
-            Log.error("The book table doesn't have such parameters")
+            Console.error("The book table doesn't have such parameters")
             return None
 
     def get_book_by_id(self, id : int):
@@ -90,13 +90,13 @@ class Context:
 
     def remove_book(self, id : int):
         if self.get_book_by_id(id) == None:
-            Log.info("The book with id = " + str(id) + " doesn't exist")
+            Console.info("The book with id = " + str(id) + " doesn't exist")
             return None
 
         self.__cursor.execute("DELETE FROM books WHERE id = " + str(id))
         self.__commit()
         if self.get_book_by_id(id) == None:
-            Log.success("The book was deleted")
+            Console.success("The book was deleted")
 
     @staticmethod
     def to_books_from_data(data : list[list[str]]) -> list[dict[str, str]]:

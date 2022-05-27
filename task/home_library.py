@@ -1,7 +1,6 @@
-from colorama import init, Fore
 from context import Context
-import os
-from logger import Log
+from console import Console
+from colorama import Fore
 
 class HomeLibrary:
     def __init__(self, path_to_connect : str):
@@ -9,27 +8,34 @@ class HomeLibrary:
 
     def show_books(self):
         '''Prints library books'''
-        print(Fore.GREEN + 'Books in library : ')
+        Console.info('Books in library : ')
         HomeLibrary.show_books_from_list(self.__context.get_all_books())
 
     @staticmethod
     def show_books_from_list(books : list[dict[str, str]]):
         '''Prints all books from list'''
         if books == None or len(books) == 0:
-            print(Fore.GREEN + 'List is empty')
+            Console.info('List is empty')
             return None
         for i in books:
             HomeLibrary.show_book(i)
+        Console.print('_______________________________')
 
     @staticmethod
     def show_book(book : dict[str, str]):
         '''Prints book, takes book'''
         if book == None:
-            print("Empty")
+            Console.info("Empty")
             return None
         print()
+        
+        max_key_lenght = 0
         for i in book.keys():
-            print(Fore.YELLOW + i, ' : ', Fore.WHITE + str(book[i]))
+            if max_key_lenght < i.__len__():
+                max_key_lenght = i.__len__() 
+
+        for i in book.keys():
+            print(Console.get_space(max_key_lenght - i.__len__()) + Fore.YELLOW + i, ':', Fore.WHITE + str(book[i]))
 
     def add_book(self):
         name = input('enter book name => ')
@@ -46,23 +52,23 @@ class HomeLibrary:
             'year' : year
         }
     
-        os.system('cls')
+        Console.clear()
         print(Fore.WHITE + 'Your book:')
         HomeLibrary.show_book(book)
 
         self.__context.insert_book(book)
 
     def remove_book(self):
-        id = int(input('enter book id => '))
+        id = int(Console.input('enter book id => '))
         book = self.__context.get_book_by_id(id)
     
         if book != None:
             HomeLibrary.show_book(book)
-            yes = input("Are you sure to delete this (yes) => ")
+            yes = Console.input("Are you sure to delete this (yes) => ")
             if yes == 'yes':
                 self.__context.remove_book(id)
         else:
-            Log.info("The book with id = " + str(id) + " doesn't exist")
+            Console.info("The book with id = " + str(id) + " doesn't exist")
     
     def show_book_by_id(self, id : int):
         '''Prints book by id, takes index of book'''
@@ -72,7 +78,7 @@ class HomeLibrary:
         parameter_name = input('enter parameter name => ')
         parameter = input('enter parameter => ')
     
-        Log.info("Find result : ")
+        Console.info("Find result : ")
         book = self.__context.get_book_by_parameter(parameter_name, parameter)
         HomeLibrary.show_book(book)
 
@@ -80,7 +86,7 @@ class HomeLibrary:
         parameter_name = input('enter parameter name => ')
         parameter = input('enter parameter => ')
     
-        Log.info("Find result : ")
+        Console.info("Find result : ")
         books = self.__context.get_books_by_parameter(parameter_name, parameter)
         HomeLibrary.show_books_from_list(books)
 
@@ -101,13 +107,16 @@ class HomeLibrary:
         enter = ''
     
         while enter != 'stop':
-            enter = input('enter parameter_name = parameter or stop => ')
+            enter = Console.input('enter parameter_name = parameter or stop => ')
             if enter != 'stop':
                 result = HomeLibrary.parameter_enter(enter)
                 if result != None:
                     parameters[result[0]] = result[1]
+                    Console.info('parameter (' + result[0] + ' = ' + result[1] + ') was added')
+                else:
+                    Console.error('enter error')
     
-        os.system('cls')
+        Console.clear()
         HomeLibrary.show_book(parameters)
-        Log.info('For this parameters result : ')
+        Console.info('For this parameters result : ')
         HomeLibrary.show_books_from_list(self.__context.get_books_by_parameters(parameters))

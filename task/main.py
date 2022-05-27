@@ -1,9 +1,7 @@
 from home_library import HomeLibrary
-from colorama import init, Fore
-from logger import Log
-import os
+from console import Console
 
-os.system('cls')
+Console.clear()
 
 def main():
     path_to_connect = 'library_db.db'
@@ -20,22 +18,22 @@ def main():
 
     choice : str = ''
     while choice != 'exit':
-        os.system('cls')
+        Console.clear()
         show_menu()
-        choice = input('enter your choice : ')
-        os.system('cls')
+        choice = Console.input('enter your choice : ')
+        Console.clear()
         if choice != 'exit':
             if choice in instuctions.keys():
                 instuctions[choice]()
-                os.system('pause')
+                Console.pause()
 
 def show_menu():
-    print(Fore.WHITE + "1. Show all books")
-    print("2. Add book")
-    print("3. Remove book")
-    print("4. Find book by parametr")
-    print("5. Find books by parametr")
-    print("6. Find books by parametrs")
-    print("exit to exit")
+    Console.print("1. Show all books")
+    Console.print("2. Add book")
+    Console.print("3. Remove book")
+    Console.print("4. Find book by parametr")
+    Console.print("5. Find books by parametr")
+    Console.print("6. Find books by parametrs")
+    Console.print("exit to exit")
 
 if __name__ == '__main__' : main()
